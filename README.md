@@ -1,22 +1,24 @@
-# Cutting Silent Audio
+# 音频静音压缩工具
 
-Batch audio silence shrinker for Windows. It scans audio files under `in/`,
-shortens long silent parts, and writes processed files to `out/` while keeping
-the original folder structure.
+这是一个 Windows 本地小工具，用来批量处理音频里的长静音。它会扫描 `in/` 目录里的音频文件，把较长的静音段压短，然后把处理后的音频输出到 `out/` 目录。
 
-## What It Does
+适合处理：
 
-- Recursively processes audio files in `in/`
-- Detects silent sections longer than 300 ms
-- Keeps about one third of each detected silent section
-- Preserves non-silent speech/audio content
-- Writes output files to `out/`
-- Adds `_shrinked` to output filenames
+- 口播音频停顿太长
+- 商品配音节奏太慢
+- 录音里有很多空白
+- 想保留原音频内容，但缩短中间等待时间
 
-This is useful for tightening voice recordings, product narration, and short
-audio clips that contain long pauses.
+## 功能
 
-## Supported Formats
+- 递归处理 `in/` 目录里的音频
+- 自动识别较长静音段
+- 默认把静音段压缩到原来的约 `1/3`
+- 非静音的人声/内容基本保留
+- 输出目录保持原来的子文件夹结构
+- 输出文件名自动加 `_shrinked`
+
+## 支持格式
 
 - `.wav`
 - `.mp3`
@@ -26,61 +28,78 @@ audio clips that contain long pauses.
 - `.ogg`
 - `.wma`
 
-## Requirements
+## 目录说明
 
-- Windows
+```text
+C:\cutting
+├── shrink_silence.py              主程序
+├── cuttingrun_shrink_silence.bat  一键运行脚本
+├── requirements.txt               Python 依赖
+├── in\                            放原始音频
+└── out\                           输出处理后的音频
+```
+
+把要处理的音频放到：
+
+```text
+in\
+```
+
+处理完成后，到这里找结果：
+
+```text
+out\
+```
+
+## 使用方法
+
+### 方法一：双击运行
+
+直接双击：
+
+```text
+cuttingrun_shrink_silence.bat
+```
+
+这个批处理会自动检查：
+
+- Python 是否存在
+- `pydub` 是否安装
+- `ffmpeg / ffprobe` 是否能找到
+- `in / out` 目录是否存在
+
+处理结束后会自动打开 `out` 文件夹。
+
+### 方法二：命令行运行
+
+```powershell
+python shrink_silence.py
+```
+
+## 依赖
+
+需要安装：
+
 - Python 3.x
-- FFmpeg and FFprobe available in `PATH`
-- Python package: `pydub`
+- FFmpeg
+- pydub
 
-Install Python dependency:
+安装 Python 依赖：
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-FFmpeg can be installed separately. After installation, make sure both commands
-work:
+确认 FFmpeg 可用：
 
 ```powershell
 ffmpeg -version
 ffprobe -version
 ```
 
-## Folder Layout
+## 参数说明
 
-```text
-C:\cutting
-├── shrink_silence.py
-├── cuttingrun_shrink_silence.bat
-├── in\
-└── out\
-```
-
-Put source audio files into `in/`. Processed files will be written to `out/`.
-
-## Usage
-
-### Option 1: Run the Batch File
-
-Double-click:
-
-```text
-cuttingrun_shrink_silence.bat
-```
-
-The batch file checks Python, installs `pydub` if needed, checks FFmpeg, runs the
-processor, and opens the output folder.
-
-### Option 2: Run Python Directly
-
-```powershell
-python shrink_silence.py
-```
-
-## Processing Settings
-
-The main settings are inside `shrink_silence.py`:
+主要参数在 `shrink_silence.py` 里：
 
 ```python
 KEEP_RATIO = 1/3
@@ -90,10 +109,16 @@ MIN_KEEP_MS = 120
 CROSSFADE_MS = 5
 ```
 
-Adjust these values if the silence detection is too aggressive or too mild.
+含义：
 
-## Notes
+- `KEEP_RATIO`：静音保留比例，默认保留三分之一
+- `MIN_SILENCE_LEN_MS`：多长以上才算需要压缩的静音，默认 `300ms`
+- `SILENCE_THRESH_DBFS`：静音判断阈值，数值越高越敏感
+- `MIN_KEEP_MS`：每段静音最少保留多长，避免剪得太硬
+- `CROSSFADE_MS`：拼接时的淡入淡出，减少爆音
 
-The `in/`, `out/`, `input/`, and `output/` folders are ignored by git because
-they may contain local audio material. Only the tool code and documentation are
-intended to be committed.
+## 注意
+
+`in/`、`out/`、`input/`、`output/` 目录里的音频不会上传到 GitHub。它们已经被 `.gitignore` 忽略。
+
+这个仓库只保存工具代码和说明文档，不保存本地音频素材。
