@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+
+in/*
+out/*
+input/*
+output/*
+
+!in/.gitkeep
+!out/.gitkeep
+!input/.gitkeep
+!output/.gitkeep
+
+.DS_Store
+Thumbs.db
+Add_PowerShell_Context.reg
